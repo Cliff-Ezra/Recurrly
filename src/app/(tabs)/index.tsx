@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { SubscriptionIcon } from "@/components/subscription-icon";
 import { type AppearanceChoice, setAppearance } from "@/constants/theme";
 
 const appearanceOptions: AppearanceChoice[] = ["dark", "light", "auto"];
@@ -58,9 +59,7 @@ export default function Home() {
         </View>
 
         <View className="upcoming-card">
-          <View className="app-icon bg-card">
-            <Text className="app-icon-letter text-foreground">N</Text>
-          </View>
+          <SubscriptionIcon brand="notion" />
           <View className="upcoming-copy">
             <Text className="upcoming-name">Notion</Text>
             <Text className="upcoming-meta">Tue 21 Apr · Team</Text>
