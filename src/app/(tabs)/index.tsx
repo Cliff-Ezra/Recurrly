@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,8 +23,22 @@ export default function Home() {
             <Text className="home-date">Sunday, 19 April</Text>
             <Text className="home-user-name">Good morning, Ezra</Text>
           </View>
-          <View className="home-avatar-fallback">
-            <Text className="home-avatar-initials">AH</Text>
+          <View className="home-user">
+            <Link href="/onboarding">Go to Onboarding</Link>
+            <Link href="/(auth)/sign-in">Go to Sign In</Link>
+            <Link href="/(auth)/sign-up">Go to Sign Up</Link>
+          </View>
+
+          <View className="home-user">
+            <Link href="/subscriptions/spotify">Spotify Subscription</Link>
+            <Link
+              href={{
+                pathname: "/(tabs)/subscriptions/[id]",
+                params: { id: "claude" },
+              }}
+            >
+              Claude Max Subscription
+            </Link>
           </View>
         </View>
 
