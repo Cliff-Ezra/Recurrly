@@ -20,7 +20,7 @@ export default function Home() {
         <View className="home-header">
           <View className="home-user">
             <Text className="home-date">Sunday, 19 April</Text>
-            <Text className="home-user-name">Good morning, Adrian</Text>
+            <Text className="home-user-name">Good morning, Ezra</Text>
           </View>
           <View className="home-avatar-fallback">
             <Text className="home-avatar-initials">AH</Text>
