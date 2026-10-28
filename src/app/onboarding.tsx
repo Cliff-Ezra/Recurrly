@@ -1,9 +1,9 @@
 import { Text, View } from "react-native";
 
-export default function onboarding() {
+export default function Onboarding() {
   return (
     <View>
-      <Text>onboarding</Text>
+      <Text>Onboarding</Text>
     </View>
   );
 }
