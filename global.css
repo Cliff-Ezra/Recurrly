@@ -1,3 +1,1597 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ==========================================================================
+   Recurly — V3 design system (NativeWind v5 + Tailwind v4)
+   --------------------------------------------------------------------------
+   • Light and dark come from CSS variables. The app follows the phone's
+     setting automatically; the Settings "Dark / Light / Auto" picker calls
+     Appearance.setColorScheme(...) and everything below re-themes itself.
+   • Every class name from the original global.css is kept, so existing
+     screens restyle without code changes. New V3 classes are added below.
+   • React Native rules this file respects:
+       – no opacity modifiers on themed colours (bg-primary/40 etc.); use the
+         *-soft tokens or opacity-* instead
+       – no backdrop-blur (use expo-blur for the tab bar)
+       – line-heights are in px
+       – weights come from font families (font-sans-*), never font-bold
+   ========================================================================== */
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css";
+
+@import "nativewind/theme";
+
+/* --------------------------------------------------------------------------
+   1. Raw palette — LIGHT (default)
+   -------------------------------------------------------------------------- */
+:root {
+    --background: #f4f4f6;
+    --foreground: #111113;
+
+    --card: #ffffff;
+    --card-foreground: #111113;
+    --subscription: #ffffff;          /* expanded subscription card */
+
+    --muted: #e6e6ea;                 /* segmented-control track */
+    --muted-raised: #ffffff;          /* segmented-control thumb */
+    --muted-foreground: #5c5c63;      /* secondary text (≥ 4.5:1) */
+    --subtle-foreground: #6e6e73;     /* placeholders, axis labels */
+
+    --surface: #ffffff;               /* chips, icon buttons */
+    --surface-strong: #ededf0;        /* active tab pill, pause button */
+
+    --input: #ffffff;
+    --input-border: #e3e3e8;
+
+    --primary: #111113;               /* main buttons, FAB, active chips */
+    --primary-foreground: #ffffff;
+
+    --border: #e3e3e8;
+    --border-subtle: #ededf0;         /* row dividers */
+    --border-strong: #d1d1d6;         /* outline buttons, switch off */
+
+    --track: #e3e3e8;                 /* progress bars, ring tracks */
+
+    --success: #1e7f45;
+    --success-soft: #e3f5ea;
+    --success-foreground: #ffffff;
+
+    --warning: #8a5300;               /* "In 2 days" chip text */
+    --warning-soft: #fff1db;
+    --warning-dot: #e08a00;
+
+    --destructive: #b3261e;           /* cancel text, errors */
+    --destructive-soft: rgba(210, 59, 47, 0.10);
+    --destructive-fill: rgba(210, 59, 47, 0.22);   /* hold-to-cancel fill */
+    --destructive-solid: #d23b2f;     /* badges */
+    --destructive-solid-foreground: #ffffff;
+
+    --overlay: rgba(17, 17, 19, 0.40);
+    --tab-bar: rgba(255, 255, 255, 0.94);
+    --tab-bar-border: #e3e3e8;
+
+    --chart-bar: #c9c9cf;
+    --chart-bar-empty: #e6e6ea;
+    --chart-1: #3d6fe0;               /* Work tools */
+    --chart-2: #e8703f;               /* Entertainment */
+    --chart-3: #e0a800;               /* Creative */
+    --chart-4: #2ba89c;               /* Storage */
+}
+
+/* --------------------------------------------------------------------------
+   2. Raw palette — DARK
+   -------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #000000;
+        --foreground: #ffffff;
+
+        --card: #111113;
+        --card-foreground: #ffffff;
+        --subscription: #111113;
+
+        --muted: #1c1c1f;
+        --muted-raised: #3a3a3e;
+        --muted-foreground: #a1a1a6;
+        --subtle-foreground: #8e8e93;
+
+        --surface: #1c1c1f;
+        --surface-strong: #2c2c30;
+
+        --input: #1c1c1f;
+        --input-border: #1c1c1f;
+
+        --primary: #ffffff;
+        --primary-foreground: #000000;
+
+        --border: #2a2a2e;
+        --border-subtle: #232327;
+        --border-strong: #3a3a3e;
+
+        --track: #232327;
+
+        --success: #3ddc84;
+        --success-soft: rgba(61, 220, 132, 0.12);
+        --success-foreground: #000000;
+
+        --warning: #ffb340;
+        --warning-soft: rgba(255, 179, 64, 0.16);
+        --warning-dot: #ffb340;
+
+        --destructive: #ff6f64;
+        --destructive-soft: rgba(255, 90, 78, 0.14);
+        --destructive-fill: rgba(255, 90, 78, 0.35);
+        --destructive-solid: #ff5a4e;
+        --destructive-solid-foreground: #000000;
+
+        --overlay: rgba(0, 0, 0, 0.60);
+        --tab-bar: rgba(28, 28, 31, 0.92);
+        --tab-bar-border: #2a2a2e;
+
+        --chart-bar: #3a3a3e;
+        --chart-bar-empty: #232327;
+        --chart-1: #5b8cff;
+        --chart-2: #ff8a5b;
+        --chart-3: #ffc53d;
+        --chart-4: #4fd1c5;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   3. Tailwind tokens → utilities (bg-*, text-*, border-*, font-*, rounded-* …)
+   -------------------------------------------------------------------------- */
+@theme inline {
+    /* Colours */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-subscription: var(--subscription);
+    --color-muted: var(--muted);
+    --color-muted-raised: var(--muted-raised);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-subtle-foreground: var(--subtle-foreground);
+    --color-surface: var(--surface);
+    --color-surface-strong: var(--surface-strong);
+    --color-input: var(--input);
+    --color-input-border: var(--input-border);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-border: var(--border);
+    --color-border-subtle: var(--border-subtle);
+    --color-border-strong: var(--border-strong);
+    --color-track: var(--track);
+    --color-success: var(--success);
+    --color-success-soft: var(--success-soft);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-soft: var(--warning-soft);
+    --color-warning-dot: var(--warning-dot);
+    --color-destructive: var(--destructive);
+    --color-destructive-soft: var(--destructive-soft);
+    --color-destructive-fill: var(--destructive-fill);
+    --color-destructive-solid: var(--destructive-solid);
+    --color-destructive-solid-foreground: var(--destructive-solid-foreground);
+    --color-overlay: var(--overlay);
+    --color-tab-bar: var(--tab-bar);
+    --color-tab-bar-border: var(--tab-bar-border);
+    --color-chart-bar: var(--chart-bar);
+    --color-chart-bar-empty: var(--chart-bar-empty);
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+
+    /* Compatibility aliases for class names already used in the starter app */
+    --color-accent: var(--primary);               /* old coral accent → primary */
+    --color-accent-foreground: var(--primary-foreground);
+    --color-dark: var(--foreground);              /* "text-dark" in subscriptions.tsx */
+
+    /* Fonts — Barlow, loaded with useFonts() under these exact names.
+       Inline so the values land in the utilities: nativewind/theme sets
+       --font-sans to the system font per platform on :root, which would
+       otherwise win over this theme. */
+    --font-sans: sans-regular;
+    --font-sans-extralight: sans-extralight;   /* 200 — hero numbers */
+    --font-sans-light: sans-light;             /* 300 — headlines, amounts */
+    --font-sans-medium: sans-medium;           /* 500 — names, titles */
+    --font-sans-semibold: sans-semibold;       /* 600 — buttons, labels */
+    --font-sans-bold: sans-bold;               /* 700 — app-icon letters */
+    --font-sans-extrabold: sans-extrabold;     /* 800 — rarely */
+}
+
+@theme {
+    /* Spacing base: every p-*, m-*, gap-*, size-*, h-*, w-* is N × 4px
+       (so h-4.5 = 18px, size-13 = 52px). Named steps kept from the starter. */
+    --spacing: 4px;
+    --spacing-0: 0px;
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 20px;
+    --spacing-6: 24px;
+    --spacing-7: 28px;
+    --spacing-8: 32px;
+    --spacing-9: 36px;
+    --spacing-10: 40px;
+    --spacing-11: 44px;
+    --spacing-12: 48px;
+    --spacing-14: 56px;
+    --spacing-15: 60px;
+    --spacing-16: 64px;
+    --spacing-18: 72px;
+    --spacing-20: 80px;
+    --spacing-24: 96px;
+    --spacing-30: 120px;
+    --spacing-50: 200px;
+
+    /* Type scale in px (avoids rem differences between platforms) */
+    --text-2xs: 11px;
+    --text-2xs--line-height: 14px;
+    --text-xs: 12px;
+    --text-xs--line-height: 16px;
+    --text-sm: 13px;
+    --text-sm--line-height: 18px;
+    --text-base: 15px;
+    --text-base--line-height: 20px;
+    --text-md: 16px;
+    --text-md--line-height: 22px;
+    --text-lg: 17px;
+    --text-lg--line-height: 22px;
+    --text-xl: 20px;
+    --text-xl--line-height: 26px;
+    --text-2xl: 24px;
+    --text-2xl--line-height: 30px;
+    --text-3xl: 28px;
+    --text-3xl--line-height: 34px;
+    --text-4xl: 34px;
+    --text-4xl--line-height: 40px;
+    --text-5xl: 40px;
+    --text-5xl--line-height: 44px;
+    --text-6xl: 54px;
+    --text-6xl--line-height: 58px;
+
+    /* Letter spacing */
+    --tracking-brand: 7px;     /* RECURLY wordmark */
+    --tracking-label: 1px;
+
+    /* Radii */
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 12px;         /* app icon tiles */
+    --radius-xl: 14px;         /* inputs, segmented controls, small buttons */
+    --radius-2xl: 16px;        /* primary buttons */
+    --radius-3xl: 20px;        /* list rows, settings groups */
+    --radius-4xl: 24px;        /* cards */
+    --radius-5xl: 36px;        /* floating tab bar */
+}
+
+/* ==========================================================================
+   4. Components
+   ========================================================================== */
+@layer components {
+
+    /* ---------- Screen scaffolding ---------- */
+    .screen {
+        @apply flex-1 bg-background;
+    }
+
+    .screen-content {
+        /* pb-30 keeps content clear of the floating tab bar */
+        @apply grow px-5 pb-30 pt-4;
+    }
+
+    .screen-header {
+        @apply mb-4 flex-row items-center gap-3;
+    }
+
+    .screen-title {
+        @apply text-3xl font-sans-medium text-foreground;
+    }
+
+    .screen-subtitle {
+        @apply text-base font-sans text-muted-foreground;
+    }
+
+    .section-title {
+        @apply text-xl font-sans-semibold text-foreground;
+    }
+
+    .group-title {
+        @apply mx-1 mb-2 mt-6 text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    .card {
+        @apply rounded-4xl bg-card p-4 shadow-sm dark:shadow-none;
+    }
+
+    .divider {
+        @apply h-px bg-border-subtle;
+    }
+
+    .icon-button {
+        @apply size-11 items-center justify-center rounded-full border border-input-border bg-surface;
+    }
+
+    .icon-button-primary {
+        @apply size-11 items-center justify-center rounded-full bg-primary;
+    }
+
+    .link-text {
+        @apply text-sm font-sans-semibold text-foreground;
+    }
+
+    .link-text-muted {
+        @apply text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn {
+        @apply h-14 flex-row items-center justify-center gap-2 rounded-2xl px-5;
+    }
+
+    .btn-primary {
+        @apply bg-primary;
+    }
+
+    .btn-primary-text {
+        @apply text-lg font-sans-semibold text-primary-foreground;
+    }
+
+    .btn-secondary {
+        @apply border border-border bg-transparent;
+    }
+
+    .btn-secondary-text {
+        @apply text-md font-sans-semibold text-foreground;
+    }
+
+    .btn-tonal {
+        @apply bg-surface-strong;
+    }
+
+    .btn-tonal-text {
+        @apply text-base font-sans-semibold text-foreground;
+    }
+
+    .btn-success {
+        @apply bg-success;
+    }
+
+    .btn-success-text {
+        @apply text-lg font-sans-semibold text-success-foreground;
+    }
+
+    .btn-danger {
+        @apply bg-destructive-soft;
+    }
+
+    .btn-danger-text {
+        @apply text-md font-sans-semibold text-destructive;
+    }
+
+    .btn-small {
+        @apply h-9 flex-row items-center justify-center rounded-full border border-border-strong px-3;
+    }
+
+    .btn-small-text {
+        @apply text-sm font-sans-semibold text-foreground;
+    }
+
+    .btn-disabled {
+        @apply opacity-40;
+    }
+
+    .btn-pressed {
+        @apply opacity-80;
+    }
+
+    /* ---------- Bottom tab bar (icon + label, centre add button) ----------
+       The bar itself is styled from JS (tabBarStyle) with theme.ts colours,
+       because React Navigation owns that view. Wrap it in expo-blur for the
+       frosted look. */
+    .tabs-icon {
+        @apply h-14 min-w-16 items-center justify-center;
+    }
+
+    .tabs-pill {
+        @apply h-14 min-w-16 items-center justify-center gap-0.5 rounded-full bg-transparent px-3;
+    }
+
+    .tabs-active {
+        @apply bg-surface-strong;
+    }
+
+    .tabs-glyph {
+        @apply size-6;
+    }
+
+    .tabs-label {
+        @apply text-2xs font-sans-semibold text-muted-foreground;
+    }
+
+    .tabs-label-active {
+        @apply text-foreground;
+    }
+
+    .tabs-badge {
+        @apply absolute right-2 top-1.5 h-4.5 min-w-4.5 items-center justify-center rounded-full bg-destructive-solid px-1;
+    }
+
+    .tabs-badge-text {
+        @apply text-2xs font-sans-bold text-destructive-solid-foreground;
+    }
+
+    .tabs-fab {
+        @apply size-14 items-center justify-center rounded-full bg-primary shadow-md dark:shadow-none;
+    }
+
+    .tabs-fab-glyph {
+        @apply size-6;
+    }
+
+    /* ---------- App icon tiles (logo or coloured letter) ----------
+       Pass the brand colour through style={{ backgroundColor }}. */
+    .app-icon {
+        @apply size-11 items-center justify-center overflow-hidden rounded-lg border border-border;
+    }
+
+    .app-icon-lg {
+        @apply size-13 items-center justify-center overflow-hidden rounded-xl border border-border;
+    }
+
+    .app-icon-xl {
+        @apply size-19 items-center justify-center overflow-hidden rounded-3xl border border-border;
+    }
+
+    .app-icon-image {
+        @apply size-full;
+    }
+
+    .app-icon-letter {
+        @apply text-xl font-sans-bold;
+    }
+
+    .app-icon-letter-lg {
+        @apply text-2xl font-sans-bold;
+    }
+
+    .app-icon-letter-xl {
+        @apply text-4xl font-sans-bold;
+    }
+
+    /* ---------- Status chips ---------- */
+    .chip {
+        @apply self-start rounded-full bg-surface-strong px-2 py-0.5;
+    }
+
+    .chip-text {
+        @apply text-2xs font-sans-semibold text-muted-foreground;
+    }
+
+    .chip-soon {
+        @apply bg-warning-soft;
+    }
+
+    .chip-soon-text {
+        @apply text-warning;
+    }
+
+    .chip-success {
+        @apply bg-success-soft;
+    }
+
+    .chip-success-text {
+        @apply text-success;
+    }
+
+    .chip-cancelled {
+        @apply bg-destructive-soft;
+    }
+
+    .chip-cancelled-text {
+        @apply text-destructive;
+    }
+
+    .status-dot {
+        @apply size-1.5 rounded-full bg-warning-dot;
+    }
+
+    /* ---------- Home ---------- */
+    .home-header {
+        @apply mb-4 flex-row items-center gap-2.5;
+    }
+
+    .home-user {
+        @apply flex-1;
+    }
+
+    .home-date {
+        @apply text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .home-user-name {
+        @apply text-2xl font-sans text-foreground;
+    }
+
+    .home-avatar {
+        @apply size-11 rounded-full;
+    }
+
+    .home-avatar-fallback {
+        @apply size-11 items-center justify-center rounded-full bg-primary;
+    }
+
+    .home-avatar-initials {
+        @apply text-sm font-sans-semibold text-primary-foreground;
+    }
+
+    .home-add-icon {
+        @apply size-5;
+    }
+
+    /* Budget card: ring on the left, amount on the right */
+    .home-balance-card {
+        @apply my-1 flex-row items-center gap-4.5 rounded-4xl bg-card p-4 shadow-sm dark:shadow-none;
+    }
+
+    .home-budget-ring {
+        @apply size-32 items-center justify-center;
+    }
+
+    .home-budget-percent {
+        @apply text-2xl font-sans-semibold text-foreground;
+    }
+
+    .home-budget-caption {
+        @apply text-xs font-sans text-muted-foreground;
+    }
+
+    .home-balance-copy {
+        @apply flex-1 gap-1;
+    }
+
+    .home-balance-label {
+        @apply text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .home-balance-row {
+        @apply flex-row items-center justify-between;
+    }
+
+    .home-balance-amount {
+        @apply text-4xl font-sans-light text-foreground;
+    }
+
+    .home-balance-date {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .home-budget-left {
+        @apply font-sans-semibold text-success;
+    }
+
+    .home-budget-over {
+        @apply font-sans-semibold text-destructive;
+    }
+
+    /* Live countdown to the next charge */
+    .countdown-card {
+        @apply mt-3 flex-row items-center gap-3.5 rounded-4xl bg-card px-4 py-3.5 shadow-sm dark:shadow-none;
+    }
+
+    .countdown-copy {
+        @apply flex-1 gap-0.5;
+    }
+
+    .countdown-label-row {
+        @apply flex-row items-center gap-1.5;
+    }
+
+    .countdown-label {
+        @apply text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .countdown-value {
+        @apply text-xl font-sans-medium text-foreground;
+    }
+
+    .countdown-price-box {
+        @apply items-end gap-0.5;
+    }
+
+    .countdown-price {
+        @apply text-lg font-sans-medium text-foreground;
+    }
+
+    .countdown-meta {
+        @apply text-xs font-sans text-muted-foreground;
+    }
+
+    .home-empty-state {
+        @apply py-4 text-sm font-sans-medium text-muted-foreground;
+    }
+
+    /* ---------- List headings ---------- */
+    .list-head {
+        @apply mb-1 mt-5 flex-row items-center justify-between px-1;
+    }
+
+    .list-title {
+        @apply text-lg font-sans-semibold text-foreground;
+    }
+
+    .list-action {
+        @apply py-2.5;
+    }
+
+    .list-action-text {
+        @apply text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    /* ---------- "This week" rows (also used for upcoming cards) ---------- */
+    .upcoming-card {
+        @apply flex-row items-center gap-3.5 rounded-2xl px-1 py-2.5;
+    }
+
+    .upcoming-row {
+        @apply flex-row items-center gap-3;
+    }
+
+    .upcoming-icon {
+        @apply size-11 rounded-lg;
+    }
+
+    .upcoming-copy {
+        @apply min-w-0 flex-1 gap-0.5;
+    }
+
+    .upcoming-name {
+        @apply text-md font-sans-medium text-foreground;
+    }
+
+    .upcoming-meta {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .upcoming-price-box {
+        @apply items-end gap-1;
+    }
+
+    .upcoming-price {
+        @apply text-md font-sans-medium text-foreground;
+    }
+
+    /* ---------- Subscription card (tap to expand) ---------- */
+    .sub-card {
+        @apply rounded-3xl px-2 py-1;
+    }
+
+    .sub-card-expanded {
+        @apply bg-subscription shadow-sm dark:shadow-none;
+    }
+
+    .sub-card-cancelled {
+        @apply opacity-60;
+    }
+
+    .sub-head {
+        @apply flex-row items-center py-2.5;
+    }
+
+    .sub-main {
+        @apply min-w-0 flex-1 flex-row items-center gap-3.5;
+    }
+
+    .sub-icon {
+        @apply size-11 rounded-lg;
+    }
+
+    .sub-copy {
+        @apply min-w-0 flex-1 gap-0.5;
+    }
+
+    .sub-title {
+        @apply text-md font-sans-medium text-foreground;
+    }
+
+    .sub-meta {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .sub-price-box {
+        @apply ml-3 shrink-0 items-end gap-1;
+    }
+
+    .sub-price {
+        @apply text-md font-sans-medium text-foreground;
+    }
+
+    .sub-billing {
+        @apply text-xs font-sans text-muted-foreground;
+    }
+
+    .sub-body {
+        @apply gap-3.5 px-2 pb-4 pt-1;
+    }
+
+    .sub-details {
+        @apply overflow-hidden rounded-xl bg-input;
+    }
+
+    .sub-row {
+        @apply flex-row items-center justify-between gap-3 border-t border-border-subtle px-3.5 py-2.5;
+    }
+
+    .sub-row-first {
+        @apply border-t-0;
+    }
+
+    .sub-row-copy {
+        @apply min-w-0 flex-1 gap-0.5;
+    }
+
+    .sub-label {
+        @apply shrink-0 text-xs font-sans text-muted-foreground;
+    }
+
+    .sub-value {
+        @apply text-base font-sans text-foreground;
+    }
+
+    /* Billing-cycle progress */
+    .sub-progress {
+        @apply gap-2;
+    }
+
+    .sub-progress-track {
+        @apply h-1.5 overflow-hidden rounded-full bg-track;
+    }
+
+    .sub-progress-fill {
+        @apply h-full rounded-full bg-foreground;
+    }
+
+    .sub-progress-text {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    /* Pause + hold-to-cancel */
+    .sub-actions {
+        @apply flex-row gap-2.5;
+    }
+
+    .sub-pause {
+        @apply h-12 flex-1 items-center justify-center rounded-xl bg-surface-strong;
+    }
+
+    .sub-pause-text {
+        @apply text-base font-sans-semibold text-foreground;
+    }
+
+    .sub-cancel {
+        @apply relative h-12 flex-1 items-center justify-center overflow-hidden rounded-xl bg-destructive-soft;
+    }
+
+    .sub-cancel-fill {
+        /* animate width 0 → 100% with Reanimated while the user holds */
+        @apply absolute bottom-0 left-0 top-0 bg-destructive-fill;
+    }
+
+    .sub-cancel-disabled {
+        @apply opacity-40;
+    }
+
+    .sub-cancel-text {
+        @apply text-base font-sans-semibold text-destructive;
+    }
+
+    .sub-cancelled-banner {
+        @apply flex-row items-center justify-between gap-3 rounded-xl bg-destructive-soft px-3.5 py-3;
+    }
+
+    .sub-cancelled-text {
+        @apply flex-1 text-sm font-sans text-destructive;
+    }
+
+    .sub-undo {
+        @apply h-9 items-center justify-center rounded-full bg-primary px-3;
+    }
+
+    .sub-undo-text {
+        @apply text-sm font-sans-semibold text-primary-foreground;
+    }
+
+    /* ---------- Search + filter chips ---------- */
+    .search-field {
+        @apply relative justify-center;
+    }
+
+    .search-icon {
+        @apply absolute left-3.5 size-4.5;
+    }
+
+    .search-input {
+        @apply h-12 rounded-xl border border-input-border bg-input pl-10.5 pr-3.5 text-md font-sans text-foreground;
+    }
+
+    .filter-row {
+        @apply flex-row gap-2;
+    }
+
+    .filter-chip {
+        @apply h-9 items-center justify-center rounded-full border border-input-border bg-surface px-3.5;
+    }
+
+    .filter-chip-active {
+        @apply border-primary bg-primary;
+    }
+
+    .filter-chip-text {
+        @apply text-sm font-sans-semibold text-foreground;
+    }
+
+    .filter-chip-text-active {
+        @apply text-primary-foreground;
+    }
+
+    /* ---------- Segmented control (Sign in / Create, Week / Month / Year) ----
+       Slide .segmented-thumb with Reanimated (translateX = index × width). */
+    .segmented {
+        @apply relative h-11.5 flex-row rounded-xl bg-muted p-1;
+    }
+
+    .segmented-thumb {
+        @apply absolute bottom-1 top-1 rounded-md bg-muted-raised shadow-sm;
+    }
+
+    .segmented-option {
+        @apply flex-1 flex-row items-center justify-center gap-1.5;
+    }
+
+    .segmented-text {
+        @apply text-base font-sans-semibold text-foreground;
+    }
+
+    /* ---------- Auth (sign in / sign up / verify) ---------- */
+    .auth-safe-area {
+        @apply flex-1 bg-background;
+    }
+
+    .auth-screen {
+        @apply flex-1 bg-background;
+    }
+
+    .auth-scroll {
+        @apply flex-1;
+    }
+
+    .auth-content {
+        @apply grow px-6 pb-8 pt-4;
+    }
+
+    .auth-top-row {
+        @apply flex-row items-center justify-between;
+    }
+
+    .auth-brand-block {
+        @apply mt-7 gap-1.5;
+    }
+
+    .auth-logo-wrap {
+        @apply mb-6 flex-row items-center gap-3;
+    }
+
+    .auth-logo-mark {
+        /* ring with an orbiting dot — rotate the dot's wrapper with Reanimated */
+        @apply relative size-11 items-center justify-center;
+    }
+
+    .auth-logo-ring {
+        @apply size-8 rounded-full border-2 border-foreground;
+    }
+
+    .auth-logo-dot {
+        @apply absolute top-0 size-2 rounded-full bg-foreground;
+    }
+
+    .auth-logo-mark-text {
+        @apply text-2xl font-sans-bold text-foreground;
+    }
+
+    .auth-wordmark {
+        @apply text-sm font-sans-medium uppercase tracking-brand text-foreground;
+    }
+
+    .auth-wordmark-sub {
+        @apply text-2xs font-sans-semibold uppercase tracking-label text-muted-foreground;
+    }
+
+    .auth-title {
+        @apply text-4xl font-sans text-foreground;
+    }
+
+    .auth-subtitle {
+        @apply text-md font-sans text-muted-foreground;
+    }
+
+    .auth-card {
+        /* the V3 form sits directly on the background; kept as a light wrapper */
+        @apply mt-6 rounded-4xl bg-transparent;
+    }
+
+    .auth-form {
+        @apply gap-3.5;
+    }
+
+    .auth-field {
+        @apply gap-1.5;
+    }
+
+    .auth-label {
+        @apply text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .auth-input-wrap {
+        @apply relative justify-center;
+    }
+
+    .auth-input {
+        @apply h-13 rounded-xl border border-input-border bg-input px-4 text-lg font-sans text-foreground;
+    }
+
+    .auth-input-with-icon {
+        @apply pr-13;
+    }
+
+    .auth-input-focused {
+        @apply border-foreground;
+    }
+
+    .auth-input-error {
+        @apply border-destructive;
+    }
+
+    .auth-input-icon {
+        /* show/hide password button */
+        @apply absolute right-1 size-11 items-center justify-center;
+    }
+
+    .auth-error {
+        @apply text-xs font-sans-medium text-destructive;
+    }
+
+    .auth-helper {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .auth-forgot {
+        @apply self-end py-1.5;
+    }
+
+    .auth-forgot-text {
+        @apply text-sm font-sans-semibold text-foreground;
+    }
+
+    /* password strength meter */
+    .auth-strength {
+        @apply flex-row items-center gap-2.5 pt-1;
+    }
+
+    .auth-strength-bars {
+        @apply flex-1 flex-row gap-1;
+    }
+
+    .auth-strength-bar {
+        @apply h-1 flex-1 rounded-full bg-track;
+    }
+
+    .auth-strength-weak {
+        @apply bg-destructive;
+    }
+
+    .auth-strength-okay {
+        @apply bg-warning-dot;
+    }
+
+    .auth-strength-strong {
+        @apply bg-success;
+    }
+
+    .auth-strength-text {
+        @apply min-w-16 text-right text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    .auth-button {
+        @apply mt-1.5 h-14 flex-row items-center justify-center gap-2.5 rounded-2xl bg-primary;
+    }
+
+    .auth-button-disabled {
+        @apply opacity-40;
+    }
+
+    .auth-button-success {
+        @apply bg-success;
+    }
+
+    .auth-button-text {
+        @apply text-lg font-sans-semibold text-primary-foreground;
+    }
+
+    .auth-button-success-text {
+        @apply text-lg font-sans-semibold text-success-foreground;
+    }
+
+    .auth-secondary-button {
+        @apply h-13 flex-row items-center justify-center gap-2.5 rounded-xl border border-border bg-card;
+    }
+
+    .auth-secondary-button-text {
+        @apply text-md font-sans-semibold text-foreground;
+    }
+
+    .auth-divider-row {
+        @apply my-5 flex-row items-center gap-3;
+    }
+
+    .auth-divider-line {
+        @apply h-px flex-1 bg-border;
+    }
+
+    .auth-divider-text {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .auth-link-row {
+        @apply mt-5 flex-row items-center justify-center gap-1;
+    }
+
+    .auth-link-copy {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .auth-link {
+        @apply text-sm font-sans-semibold text-foreground underline;
+    }
+
+    .auth-legal {
+        @apply mt-auto pt-6 text-center text-sm font-sans text-muted-foreground;
+    }
+
+    /* ---------- Onboarding (3 slides) ---------- */
+    .onboarding-screen {
+        @apply flex-1 bg-background;
+    }
+
+    .onboarding-top {
+        @apply flex-row items-center justify-between px-6 pt-2;
+    }
+
+    .onboarding-wordmark {
+        @apply text-sm font-sans-medium uppercase tracking-brand text-foreground;
+    }
+
+    .onboarding-skip {
+        @apply px-2 py-3;
+    }
+
+    .onboarding-skip-text {
+        @apply text-base font-sans-semibold text-muted-foreground;
+    }
+
+    .onboarding-visual {
+        @apply h-90 items-center justify-center;
+    }
+
+    .onboarding-copy {
+        @apply gap-3 px-6;
+    }
+
+    .onboarding-title {
+        @apply text-4xl font-sans-light text-foreground;
+    }
+
+    .onboarding-body {
+        @apply text-lg font-sans text-muted-foreground;
+    }
+
+    .onboarding-footer {
+        @apply mt-auto gap-4.5 px-6 pb-10;
+    }
+
+    .onboarding-dots {
+        @apply flex-row gap-1.5;
+    }
+
+    .onboarding-dot {
+        /* animate width 8 → 28 for the active dot */
+        @apply h-2 w-2 rounded-full bg-border-strong;
+    }
+
+    .onboarding-dot-active {
+        @apply w-7 bg-foreground;
+    }
+
+    .onboarding-secondary {
+        @apply items-center py-1.5;
+    }
+
+    .onboarding-secondary-text {
+        @apply text-base font-sans-medium text-muted-foreground;
+    }
+
+    /* ---------- Bottom-sheet modal ---------- */
+    .modal-overlay {
+        @apply flex-1 bg-overlay;
+    }
+
+    .modal-container {
+        @apply mt-auto max-h-[90%] rounded-t-4xl bg-background;
+    }
+
+    .modal-handle {
+        @apply mt-2 h-1 w-9 self-center rounded-full bg-border-strong;
+    }
+
+    .modal-header {
+        @apply flex-row items-center justify-between px-5 py-4;
+    }
+
+    .modal-title {
+        @apply text-lg font-sans-semibold text-foreground;
+    }
+
+    .modal-close {
+        @apply size-11 items-center justify-center rounded-full border border-input-border bg-surface;
+    }
+
+    .modal-close-text {
+        @apply text-lg font-sans-semibold text-foreground;
+    }
+
+    .modal-body {
+        @apply gap-5 px-5 pb-8;
+    }
+
+    .modal-footer {
+        @apply px-5 pb-8 pt-2;
+    }
+
+    /* ---------- Add subscription flow ---------- */
+    .add-progress {
+        @apply flex-row gap-1.5;
+    }
+
+    .add-progress-step {
+        @apply h-1 flex-1 rounded-full bg-track;
+    }
+
+    .add-progress-step-active {
+        @apply bg-foreground;
+    }
+
+    .scan-card {
+        @apply flex-row items-center gap-3.5 rounded-3xl border border-border bg-card p-3.5;
+    }
+
+    .scan-card-icon {
+        @apply size-11 items-center justify-center rounded-lg bg-primary;
+    }
+
+    .scan-card-title {
+        @apply text-md font-sans-semibold text-foreground;
+    }
+
+    .scan-card-body {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .app-grid {
+        @apply flex-row flex-wrap gap-2.5;
+    }
+
+    .app-grid-item {
+        /* three per row: (screen width − 40 − 20) / 3 — set width in JS */
+        @apply items-center gap-2 rounded-3xl bg-card px-1 pb-3 pt-3.5;
+    }
+
+    .app-grid-name {
+        @apply text-center text-sm font-sans-medium text-foreground;
+    }
+
+    .add-app-header {
+        @apply items-center gap-2.5 pt-1;
+    }
+
+    .add-app-name {
+        @apply text-2xl font-sans-medium text-foreground;
+    }
+
+    .price-input-wrap {
+        @apply relative justify-center;
+    }
+
+    .price-prefix {
+        @apply absolute left-4 text-2xl font-sans-light text-muted-foreground;
+    }
+
+    .price-input {
+        @apply h-15 rounded-xl border border-input-border bg-input pl-9 pr-4 text-3xl font-sans-light text-foreground;
+    }
+
+    /* Billing frequency (kept names) */
+    .picker-row {
+        @apply flex-row gap-2;
+    }
+
+    .picker-option {
+        @apply h-11 flex-1 items-center justify-center rounded-xl border border-input-border bg-surface;
+    }
+
+    .picker-option-active {
+        @apply border-primary bg-primary;
+    }
+
+    .picker-option-text {
+        @apply text-base font-sans-semibold text-foreground;
+    }
+
+    .picker-option-text-active {
+        @apply text-primary-foreground;
+    }
+
+    /* Category / reminder chips (kept names) */
+    .category-scroll {
+        @apply flex-row flex-wrap gap-2;
+    }
+
+    .category-chip {
+        @apply h-10 items-center justify-center rounded-full border border-border bg-surface px-3.5;
+    }
+
+    .category-chip-active {
+        @apply border-primary bg-primary;
+    }
+
+    .category-chip-text {
+        @apply text-base font-sans-semibold text-foreground;
+    }
+
+    .category-chip-text-active {
+        @apply text-primary-foreground;
+    }
+
+    /* Success step */
+    .success-wrap {
+        @apply items-center gap-4.5 pt-10;
+    }
+
+    .success-circle {
+        @apply size-30 items-center justify-center rounded-full bg-success;
+    }
+
+    .success-burst {
+        /* scale 0.6 → 1.7 and fade out with Reanimated */
+        @apply absolute size-30 rounded-full border-2 border-success;
+    }
+
+    .success-title {
+        @apply text-center text-3xl font-sans text-foreground;
+    }
+
+    .success-body {
+        @apply text-center text-md font-sans text-muted-foreground;
+    }
+
+    .summary-row {
+        @apply flex-row items-center justify-between self-stretch rounded-3xl border border-border bg-card p-4;
+    }
+
+    .summary-label {
+        @apply text-base font-sans text-muted-foreground;
+    }
+
+    .summary-value {
+        @apply text-xl font-sans-medium text-foreground;
+    }
+
+    /* ---------- Insights ---------- */
+    .insights-card {
+        @apply mt-3.5 rounded-4xl bg-card p-4.5 shadow-sm dark:shadow-none;
+    }
+
+    .insights-total-row {
+        @apply flex-row items-start justify-between;
+    }
+
+    .insights-total-label {
+        @apply text-sm font-sans-medium text-muted-foreground;
+    }
+
+    .insights-total-amount {
+        @apply text-5xl font-sans-light text-foreground;
+    }
+
+    .delta-chip {
+        @apply rounded-full bg-warning-soft px-2.5 py-1;
+    }
+
+    .delta-chip-text {
+        @apply text-xs font-sans-semibold text-warning;
+    }
+
+    .delta-chip-good {
+        @apply bg-success-soft;
+    }
+
+    .delta-chip-good-text {
+        @apply text-success;
+    }
+
+    .chart-readout {
+        @apply mt-4.5 flex-row items-end justify-between border-b border-border-subtle pb-2.5;
+    }
+
+    .chart-readout-key {
+        @apply text-xs font-sans text-muted-foreground;
+    }
+
+    .chart-readout-label {
+        @apply text-base font-sans-medium text-foreground;
+    }
+
+    .chart-readout-amount {
+        @apply text-xl font-sans-medium text-foreground;
+    }
+
+    .chart {
+        @apply mt-3 h-35 flex-row items-end gap-0.75;
+    }
+
+    .chart-bar {
+        /* height set in JS; grow it from 0 with Reanimated */
+        @apply min-w-0 flex-1 rounded-sm bg-chart-bar;
+    }
+
+    .chart-bar-empty {
+        @apply bg-chart-bar-empty;
+    }
+
+    .chart-bar-active {
+        @apply bg-foreground;
+    }
+
+    .chart-axis {
+        @apply mt-2 flex-row justify-between;
+    }
+
+    .chart-axis-label {
+        @apply text-2xs font-sans-medium text-subtle-foreground;
+    }
+
+    .category-bar {
+        @apply mt-3.5 h-3 flex-row gap-0.75;
+    }
+
+    .category-segment {
+        /* flex set in JS to the category amount */
+        @apply rounded-md;
+    }
+
+    .category-row {
+        @apply flex-row items-center gap-3 border-b border-border-subtle py-2.5;
+    }
+
+    .category-dot {
+        @apply size-2.5 rounded-sm;
+    }
+
+    .category-name {
+        @apply text-base font-sans-medium text-foreground;
+    }
+
+    .category-apps {
+        @apply text-xs font-sans text-muted-foreground;
+    }
+
+    .category-amount {
+        @apply text-right text-base font-sans-medium text-foreground;
+    }
+
+    .category-pct {
+        @apply text-right text-xs font-sans text-muted-foreground;
+    }
+
+    .stat-grid {
+        @apply mt-3 flex-row gap-3;
+    }
+
+    .stat-card {
+        @apply flex-1 gap-1 rounded-3xl bg-card p-4 shadow-sm dark:shadow-none;
+    }
+
+    .stat-card-success {
+        @apply bg-success-soft shadow-none;
+    }
+
+    .stat-label {
+        @apply text-sm font-sans-semibold text-muted-foreground;
+    }
+
+    .stat-label-success {
+        @apply text-success;
+    }
+
+    .stat-value {
+        @apply text-2xl font-sans text-foreground;
+    }
+
+    .stat-value-success {
+        @apply text-success;
+    }
+
+    /* ---------- Settings / Account ---------- */
+    .profile-card {
+        @apply mt-4 flex-row items-center gap-4 rounded-4xl bg-card p-4.5 shadow-sm dark:shadow-none;
+    }
+
+    .profile-avatar {
+        @apply size-16 items-center justify-center rounded-full bg-primary;
+    }
+
+    .profile-avatar-text {
+        @apply text-2xl font-sans-semibold text-primary-foreground;
+    }
+
+    .profile-name {
+        @apply text-xl font-sans-medium text-foreground;
+    }
+
+    .profile-email {
+        @apply text-base font-sans text-muted-foreground;
+    }
+
+    .settings-group {
+        @apply overflow-hidden rounded-3xl bg-card shadow-sm dark:shadow-none;
+    }
+
+    .settings-row {
+        @apply min-h-15 flex-row items-center gap-3.5 border-t border-border-subtle px-4;
+    }
+
+    .settings-row-first {
+        @apply border-t-0;
+    }
+
+    .settings-row-icon {
+        @apply size-8.5 items-center justify-center rounded-md bg-surface-strong;
+    }
+
+    .settings-row-copy {
+        @apply flex-1 gap-0.5;
+    }
+
+    .settings-row-label {
+        @apply text-md font-sans text-foreground;
+    }
+
+    .settings-row-sub {
+        @apply text-sm font-sans text-muted-foreground;
+    }
+
+    .settings-row-value {
+        @apply text-base font-sans text-muted-foreground;
+    }
+
+    .settings-row-danger {
+        @apply text-destructive;
+    }
+
+    /* Toggle switch (animate the thumb's translateX 0 → 20) */
+    .switch-track {
+        @apply h-8 w-13 justify-center rounded-full bg-border-strong px-0.75;
+    }
+
+    .switch-track-on {
+        @apply bg-primary;
+    }
+
+    .switch-thumb {
+        @apply size-6.5 rounded-full bg-white shadow-sm;
+    }
+
+    .switch-thumb-on {
+        @apply bg-primary-foreground;
+    }
+
+    .signout-button {
+        @apply mt-6 h-13.5 flex-row items-center justify-center gap-2 rounded-2xl bg-destructive-soft;
+    }
+
+    .signout-text {
+        @apply text-md font-sans-semibold text-destructive;
+    }
+
+    .app-version {
+        @apply mt-3.5 text-center text-sm font-sans text-muted-foreground;
+    }
+
+    /* ---------- Subscription detail screen (/subscriptions/[id]) ---------- */
+    .detail-hero {
+        @apply items-center gap-2.5 pb-6 pt-2;
+    }
+
+    .detail-name {
+        @apply text-2xl font-sans-medium text-foreground;
+    }
+
+    .detail-price {
+        @apply text-5xl font-sans-light text-foreground;
+    }
+
+    .detail-cycle {
+        @apply text-base font-sans text-muted-foreground;
+    }
+
+    /* ---------- Empty, loading, error and offline states ---------- */
+    .empty-state {
+        @apply items-center gap-3 px-6 py-10;
+    }
+
+    .empty-state-icon {
+        @apply size-16 items-center justify-center rounded-full bg-surface-strong;
+    }
+
+    .empty-state-title {
+        @apply text-center text-xl font-sans-medium text-foreground;
+    }
+
+    .empty-state-body {
+        @apply text-center text-base font-sans text-muted-foreground;
+    }
+
+    .skeleton {
+        /* pulse opacity 0.5 ↔ 1 with Reanimated */
+        @apply rounded-md bg-surface-strong;
+    }
+
+    .skeleton-row {
+        @apply flex-row items-center gap-3.5 py-2.5;
+    }
+
+    .skeleton-tile {
+        @apply size-11 rounded-lg bg-surface-strong;
+    }
+
+    .skeleton-line {
+        @apply h-3 rounded-full bg-surface-strong;
+    }
+
+    .error-banner {
+        @apply flex-row items-center gap-3 rounded-xl bg-destructive-soft px-3.5 py-3;
+    }
+
+    .error-banner-text {
+        @apply flex-1 text-sm font-sans-medium text-destructive;
+    }
+
+    .offline-banner {
+        @apply flex-row items-center justify-center gap-2 bg-warning-soft py-2;
+    }
+
+    .offline-banner-text {
+        @apply text-sm font-sans-semibold text-warning;
+    }
+
+    .toast {
+        @apply absolute bottom-28 left-5 right-5 flex-row items-center gap-3 rounded-2xl bg-primary px-4 py-3.5 shadow-lg;
+    }
+
+    .toast-text {
+        @apply flex-1 text-base font-sans-medium text-primary-foreground;
+    }
+
+    .toast-action-text {
+        @apply text-base font-sans-semibold text-primary-foreground underline;
+    }
+}
