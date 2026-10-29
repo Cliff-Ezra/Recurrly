@@ -15,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 
 import { useAppTheme } from "@/constants/theme";
+import { PreferencesProvider } from "@/hooks/use-preferences";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -43,7 +44,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <PreferencesProvider>
       <StatusBar style="auto" />
       <Stack
         screenOptions={{
@@ -51,6 +52,6 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.background },
         }}
       />
-    </>
+    </PreferencesProvider>
   );
 }

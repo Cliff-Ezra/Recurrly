@@ -4,7 +4,7 @@ import { type ColorValue, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { tabs } from "@/constants/data";
-import { iconStroke, type IconName, icons } from "@/constants/icons";
+import { type IconName, icons, iconStroke } from "@/constants/icons";
 import { components, useAppTheme } from "@/constants/theme";
 
 const { tabBar } = components;
@@ -25,7 +25,10 @@ function TabIcon({ focused, color, icon, title }: TabIconProps) {
     <View className="tabs-icon">
       <View className={clsx("tabs-pill", focused && "tabs-active")}>
         <Icon size={tabBar.iconSize} color={color} strokeWidth={iconStroke} />
-        <Text className={clsx("tabs-label", focused && "tabs-label-active")} numberOfLines={1}>
+        <Text
+          className={clsx("tabs-label", focused && "tabs-label-active")}
+          numberOfLines={1}
+        >
           {title}
         </Text>
       </View>
@@ -74,7 +77,12 @@ export default function TabLayout() {
           options={{
             title: tab.title,
             tabBarIcon: ({ focused, color }) => (
-              <TabIcon focused={focused} color={color} icon={tab.icon} title={tab.title} />
+              <TabIcon
+                focused={focused}
+                color={color}
+                icon={tab.icon}
+                title={tab.title}
+              />
             ),
           }}
         />
