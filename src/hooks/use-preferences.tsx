@@ -67,9 +67,10 @@ export function usePreferences() {
 
 /**
  * Formatting and conversion in the user's currency and locale:
- *   const { format, convert } = useCurrency();
- *   format(subscription.price)          // "$20.00", in its own currency
- *   format(convert(subscription.price)) // in the user's currency
+ *   const { format, formatConverted, convert } = useCurrency();
+ *   formatConverted(subscription.price) // "≈ Ksh 2,580.00" for a KES user
+ *   format(subscription.price)          // "$20.00", the price as billed
+ *   format(convert(subscription.price)) // in the user's currency, no "≈"
  */
 export function useCurrency() {
   const { currency, locale } = usePreferences();
@@ -84,5 +85,14 @@ export function useCurrency() {
   const format = (money: Money, options?: Intl.NumberFormatOptions) =>
     formatCurrency(money, locale, options);
 
-  return { currency, locale, convert, format };
+  /**
+   * In the user's currency. Converted amounts start with "≈": the exchange
+   * rate is an estimate, so the bank's charge will differ slightly.
+   */
+  const formatConverted = (money: Money, options?: Intl.NumberFormatOptions) =>
+    money.currency === currency
+      ? format(money, options)
+      : `≈ ${format(convert(money), options)}`;
+
+  return { currency, locale, convert, format, formatConverted };
 }
