@@ -1,15 +1,44 @@
-import { Link } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { SubscriptionIcon } from "@/components/subscription-icon";
 import { type AppearanceChoice, setAppearance } from "@/constants/theme";
+import { useNow } from "@/hooks/use-now";
+import { useCurrency, usePreferences } from "@/hooks/use-preferences";
+import { useSubscriptions, useUser } from "@/hooks/use-subscriptions";
+import {
+  dueLabel,
+  formatLongDate,
+  formatShortDate,
+  greeting,
+} from "@/lib/dates";
+import {
+  chargesBetween,
+  chargesTotal,
+  upcomingRenewals,
+} from "@/lib/subscriptions";
 
 const appearanceOptions: AppearanceChoice[] = ["dark", "light", "auto"];
 
 export default function Home() {
   const [appearance, setAppearanceChoice] = useState<AppearanceChoice>("auto");
+  const now = useNow();
+  const { user } = useUser();
+  const { subscriptions } = useSubscriptions();
+  const { preferences } = usePreferences();
+  const { currency, convert, format, formatConverted } = useCurrency();
+
+  const spent = chargesTotal(
+    chargesBetween(subscriptions, now.startOf("month"), now),
+    convert,
+    currency,
+  );
+  const budget = convert(preferences.monthlyBudget);
+  const left = { amount: budget.amount - spent.amount, currency };
+  const thisWeek = upcomingRenewals(subscriptions, now).filter(
+    (renewal) => renewal.days <= 7,
+  );
 
   const chooseAppearance = (choice: AppearanceChoice) => {
     setAppearanceChoice(choice);
@@ -21,56 +50,65 @@ export default function Home() {
       <ScrollView contentContainerClassName="screen-content">
         <View className="home-header">
           <View className="home-user">
-            <Text className="home-date">Sunday, 19 April</Text>
-            <Text className="home-user-name">Good morning, Ezra</Text>
-          </View>
-          <View className="home-user">
-            <Link href="/onboarding">Go to Onboarding</Link>
-            <Link href="/(auth)/sign-in">Go to Sign In</Link>
-            <Link href="/(auth)/sign-up">Go to Sign Up</Link>
-          </View>
-
-          <View className="home-user">
-            <Link href="/subscriptions/spotify">Spotify Subscription</Link>
-            <Link
-              href={{
-                pathname: "/(tabs)/subscriptions/[id]",
-                params: { id: "claude" },
-              }}
-            >
-              Claude Max Subscription
-            </Link>
+            <Text className="home-date">{formatLongDate(now)}</Text>
+            <Text className="home-user-name">
+              {greeting(now)}, {user.name}
+            </Text>
           </View>
         </View>
 
         <View className="home-balance-card">
           <View className="home-balance-copy">
-            <Text className="home-balance-label">Spent in April</Text>
-            <Text className="home-balance-amount">$198.53</Text>
+            <Text className="home-balance-label">
+              Spent in {now.format("MMMM")}
+            </Text>
+            <Text className="home-balance-amount">{format(spent)}</Text>
             <Text className="home-balance-date">
-              <Text className="home-budget-left">$61.47 left</Text> of $260
+              {left.amount >= 0 ? (
+                <Text className="home-budget-left">{format(left)} left</Text>
+              ) : (
+                <Text className="home-budget-over">
+                  {format({ ...left, amount: -left.amount })} over
+                </Text>
+              )}{" "}
+              of {format(budget, { maximumFractionDigits: 0 })}
             </Text>
           </View>
         </View>
 
         <View className="list-head">
           <Text className="list-title">This week</Text>
-          <Text className="list-action-text">See all 7</Text>
+          <Text className="list-action-text">See all {thisWeek.length}</Text>
         </View>
 
-        <View className="upcoming-card">
-          <SubscriptionIcon brand="notion" />
-          <View className="upcoming-copy">
-            <Text className="upcoming-name">Notion</Text>
-            <Text className="upcoming-meta">Tue 21 Apr · Team</Text>
-          </View>
-          <View className="upcoming-price-box">
-            <Text className="upcoming-price">$20.00</Text>
-            <View className="chip chip-soon">
-              <Text className="chip-text chip-soon-text">In 2 days</Text>
+        {thisWeek.slice(0, 3).map(({ subscription, date, days }) => (
+          <View key={subscription.id} className="upcoming-card">
+            <SubscriptionIcon
+              brand={subscription.brand}
+              name={subscription.name}
+            />
+            <View className="upcoming-copy">
+              <Text className="upcoming-name">{subscription.name}</Text>
+              <Text className="upcoming-meta">
+                {formatShortDate(date)} · {subscription.plan}
+              </Text>
+            </View>
+            <View className="upcoming-price-box">
+              <Text className="upcoming-price">
+                {formatConverted(subscription.price)}
+              </Text>
+              <View className={days <= 2 ? "chip chip-soon" : "chip"}>
+                <Text
+                  className={
+                    days <= 2 ? "chip-text chip-soon-text" : "chip-text"
+                  }
+                >
+                  {dueLabel(date, now)}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        ))}
 
         <Text className="group-title">Appearance</Text>
         <View className="segmented">
